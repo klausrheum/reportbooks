@@ -19,27 +19,107 @@ var masterUser = "classroom@hope.edu.kh";
 
 function installReportbookMenu () {
   var spreadsheet = SpreadsheetApp.getActive();
-  var menuItems = [
+  var adminMenuItems = [
+    {name: 'Import Courses', functionName: 'updateReportbookClassrooms'},
+    {name: 'Import Teachers', functionName: 'getTeachersFromTracker'},
+    {name: 'Generate Empty Reportbooks (Sync 🗹)', functionName: 'createMissingReportbooks'},
+    null,
     {name: 'Import Grades', functionName: 'importGrades'},
     null,
-    {name: 'Create Empty Student Portfolios', functionName: 'createPortfolios'},
-    {name: "Update 🗹 Portfolios from 🗹 Subjects", functionName: 'exportPortfolios'},    
+    {name: 'Generate Empty Portfolios', functionName: 'createPortfolios'},
+    {name: "Update 🗹 Portfolios from 🗹 Courses", functionName: 'exportPortfolios'},    
     null,
     {name: 'Backup Portfolio Admin', functionName: 'backupAllPastoralAdmin'},
     null,
     {name: 'Generate PDFs for 🗹 Portfolios', functionName: 'generateSelectedPortfolioPDFs'},
     {name: 'Generate PDFs for 🗹 Portfolios and email to guardians', functionName: 'generateAndSendSelectedPortfolioPDFs'},
     null,
-    {name: 'Delete ALL SUBJECTS from 🗹 Portfolios', functionName: 'keepKillPortfolioSheets'}
+    {name: 'Delete ALL SUBJECTS from 🗹 Portfolios', functionName: 'keepKillPortfolioSheets'},
+    {name: 'Archive ALL Courses', functionName: 'archiveAllCourses'},
   ];
-
-  spreadsheet.addMenu('Reportbook', menuItems);
+    
+    var userMenuItems = [
+    {name: 'Import Grades', functionName: 'importGrades'},
+  ]
+  if (Session.getActiveUser().getEmail() == masterUser) {
+    spreadsheet.addMenu('Reportbook', adminMenuItems);
+  } else {
+    spreadsheet.addMenu('Reportbook', userMenuItems);
+  }
 }
+
+function archiveAllCourses() {
+  SuperMarkIt.archiveAllCourses();
+}
+
+
+function updateReportbookClassrooms() {
+  SuperMarkIt.updateReportbookClassrooms();
+}
+
+
+function getTeachersFromTracker() {
+  SuperMarkIt.getTeachersFromTracker();
+}
+
+
+function createMissingReportbooks() {
+  SuperMarkIt.createMissingReportbooks();
+}
+
 
 function generateSelectedPortfolioPDFs() {
   SuperMarkIt.generateSelectedPortfolioPDFs(false);
 }
-    
+
+
+function importGrades() {
+  var message = Utilities.formatString("Function %s executed", "importGrades");
+  SuperMarkIt.logToSheet( message );
+  
+  // Y2025 ICT JKw
+  var rbId; // = "1BijeGY49S0amD3u-eePjz8iWBwH1sEc7QE_yADzVzgQ";  
+  var courseId; // = "16052292479";
+  var sheet = SpreadsheetApp.getActiveSheet();
+  if (sheet.getName() != "Reportbooks") {
+    SpreadsheetApp.getUi().alert("ERROR: Select a course from the Reportbooks tab");
+  } else {
+    var selection = SpreadsheetApp.getSelection();
+    //SpreadsheetApp.getUi().alert(currentRange);
+    //Logger.log('Active Sheet: ' + selection.getActiveSheet().getName());
+    // Current Cell: D1
+    //Logger.log('Current Cell: ' + selection.getCurrentCell().getA1Notation());
+    // Active Range: D1:E4
+    //Logger.log('Active Range: ' + selection.getActiveRange().getA1Notation());
+    // Active Ranges: A1:B4, D1:E4
+    var ranges =  selection.getActiveRangeList().getRanges();
+    Logger.log("selection contains %s cells", ranges.length);
+    for (var i = 0; i < ranges.length; i++) {
+      var row = ranges[i].getRow();
+      var column = ranges[i].getColumn();
+      Logger.log('row %s, column %s', row, column);
+      
+      var courseIdColumn = 5;
+      var rbIdColumn = 1;
+      var timestampColumn = 17;
+      
+      if (column != 2) {
+        SpreadsheetApp.getUi().alert("ERROR: Select a course from column B");
+      } else {
+        var rbId = sheet.getRange(row, rbIdColumn).getValue();
+        var courseId = sheet.getRange(row, courseIdColumn).getValue();
+        if (rbId && courseId) {
+          Logger.log("importGrades: rbId=%s, courseId=%s", rbId, courseId);
+          SuperMarkIt.importGrades(rbId, courseId);
+          sheet.getRange(row, timestampColumn).setValue(new Date()); 
+
+        }
+      }
+    }
+  }
+}
+
+
 function keepKillPortfolioSheets() {
   var ui = SpreadsheetApp.getUi();
   
@@ -81,52 +161,6 @@ function generateAndSendSelectedPortfolioPDFs() {
 
 }
     
-function importGrades() {
-  var message = Utilities.formatString("Function %s executed", "importGrades");
-  SuperMarkIt.logToSheet( message );
-  
-  // Y2025 ICT JKw
-  var rbId = "1BijeGY49S0amD3u-eePjz8iWBwH1sEc7QE_yADzVzgQ";  
-  var courseId = "16052292479";
-  var sheet = SpreadsheetApp.getActiveSheet();
-  if (sheet.getName() != "Reportbooks") {
-    SpreadsheetApp.getUi().alert("ERROR: Select a course from the Reportbooks tab");
-  } else {
-    var selection = SpreadsheetApp.getSelection();
-    //SpreadsheetApp.getUi().alert(currentRange);
-    //Logger.log('Active Sheet: ' + selection.getActiveSheet().getName());
-    // Current Cell: D1
-    //Logger.log('Current Cell: ' + selection.getCurrentCell().getA1Notation());
-    // Active Range: D1:E4
-    //Logger.log('Active Range: ' + selection.getActiveRange().getA1Notation());
-    // Active Ranges: A1:B4, D1:E4
-    var ranges =  selection.getActiveRangeList().getRanges();
-    Logger.log("selection contains %s cells", ranges.length);
-    for (var i = 0; i < ranges.length; i++) {
-      var row = ranges[i].getRow();
-      var column = ranges[i].getColumn();
-      Logger.log('row %s, column %s', row, column);
-      
-      var courseIdColumn = 4;
-      var rbIdColumn = 1;
-      var timestampColumn = 16;
-      
-      if (column != 2) {
-        SpreadsheetApp.getUi().alert("ERROR: Select a course from column B");
-      } else {
-        var rbId = sheet.getRange(row, rbIdColumn).getValue();
-        var courseId = sheet.getRange(row, courseIdColumn).getValue();
-        if (rbId && courseId) {
-          Logger.log("importGrades: rbId=%s, courseId=%s", rbId, courseId);
-          SuperMarkIt.importGrades(rbId, courseId);
-          sheet.getRange(row, timestampColumn).setValue(new Date()); 
-
-        }
-      }
-    }
-  }
-}
-
 function createFilterView() {
   var name = "Thressa Brand";
   var ss = SpreadsheetApp.getActive();
