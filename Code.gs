@@ -20,22 +20,23 @@ var masterUser = "classroom@hope.edu.kh";
 function installReportbookMenu () {
   var spreadsheet = SpreadsheetApp.getActive();
   var adminMenuItems = [
-    {name: 'Import Courses', functionName: 'updateReportbookClassrooms'},
-    {name: 'Import Teachers', functionName: 'getTeachersFromTracker'},
-    {name: 'Generate Empty Reportbooks (Sync 🗹)', functionName: 'createMissingReportbooks'},
+    {name: '⚠ Import Courses', functionName: 'updateReportbookClassrooms'},
+    {name: '⚠ Import Teachers', functionName: 'getTeachersFromTracker'},
+    {name: '⚠ Generate Empty Reportbooks (Sync 🗹)', functionName: 'createMissingReportbooks'},
+    {name: '⚠ Import Students', functionName: 'updateRbStudents'},
     null,
     {name: 'Import Grades', functionName: 'importGrades'},
     null,
-    {name: 'Generate Empty Portfolios', functionName: 'createPortfolios'},
-    {name: "Update 🗹 Portfolios from 🗹 Courses", functionName: 'exportPortfolios'},    
+    {name: '⚠ Generate Empty Portfolios', functionName: 'createPortfolios'},
+    {name: "⚠ Update 🗹 Portfolios from 🗹 Courses", functionName: 'exportPortfolios'},    
     null,
-    {name: 'Backup Portfolio Admin', functionName: 'backupAllPastoralAdmin'},
+    {name: '⚠ Backup Portfolio Admin', functionName: 'backupAllPastoralAdmin'},
     null,
-    {name: 'Generate PDFs for 🗹 Portfolios', functionName: 'generateSelectedPortfolioPDFs'},
-    {name: 'Generate PDFs for 🗹 Portfolios and email to guardians', functionName: 'generateAndSendSelectedPortfolioPDFs'},
+    {name: '⚠ Generate PDFs for 🗹 Portfolios', functionName: 'generateSelectedPortfolioPDFs'},
+    {name: '⚠ Generate PDFs for 🗹 Portfolios and email to guardians', functionName: 'generateAndSendSelectedPortfolioPDFs'},
     null,
-    {name: 'Delete ALL SUBJECTS from 🗹 Portfolios', functionName: 'keepKillPortfolioSheets'},
-    {name: 'Archive ALL Courses', functionName: 'archiveAllCourses'},
+    {name: '🕱 Delete ALL SUBJECTS from 🗹 Portfolios', functionName: 'keepKillPortfolioSheets'},
+    {name: '🕱 Archive ALL Courses', functionName: 'archiveAllCourses'},
   ];
     
     var userMenuItems = [
@@ -113,6 +114,42 @@ function importGrades() {
           SuperMarkIt.importGrades(rbId, courseId);
           sheet.getRange(row, timestampColumn).setValue(new Date()); 
 
+        }
+      }
+    }
+  }
+}
+
+
+function updateRbStudents() {
+  var message = Utilities.formatString("Function %s executed", "updateRbStudents");
+  SuperMarkIt.logToSheet( message );
+  
+  var sheet = SpreadsheetApp.getActiveSheet();
+  if (sheet.getName() != "Reportbooks") {
+    SpreadsheetApp.getUi().alert("ERROR: Select a course from the Reportbooks tab");
+  } else {
+    var selection = SpreadsheetApp.getSelection();
+    var ranges =  selection.getActiveRangeList().getRanges();
+    Logger.log("selection contains %s cells", ranges.length);
+    for (var i = 0; i < ranges.length; i++) {
+      var row = ranges[i].getRow();
+      var column = ranges[i].getColumn();
+      Logger.log('row %s, column %s', row, column);
+      
+      var courseIdColumn = 5;
+      var rbIdColumn = 1;
+      var timestampColumn = 17;
+      
+      if (column != 2) {
+        SpreadsheetApp.getUi().alert("ERROR: Select a course from column B");
+      } else {
+        var rbId = sheet.getRange(row, rbIdColumn).getValue();
+        var courseId = sheet.getRange(row, courseIdColumn).getValue();
+        if (rbId && courseId) {
+          Logger.log("updateRbStudents: rbId=%s, courseId=%s", rbId, courseId);
+          var courseStudents = SuperMarkIt.listStudents(courseId);
+          SuperMarkIt.updateRbStudents(rbId, courseStudents);
         }
       }
     }
