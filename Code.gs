@@ -1,6 +1,6 @@
 /**
  * After editing SuperMarkIt's scripts, File > Manage Versions, Create New
- * Resources > Libraries > Select new version
+ * Back here: Resources > Libraries > Select new version
 
 Works with the klausrheum/supermarkit github project.
 
@@ -15,9 +15,9 @@ function onOpen() {
   installReportbookMenu();
 }
 
-var masterUser = "classroom@hope.edu.kh";
 
 function installReportbookMenu () {
+  var masterUser = "classroom@hope.edu.kh";
   var spreadsheet = SpreadsheetApp.getActive();
   var adminMenuItems = [
     {name: '⚠ Import Courses', functionName: 'updateReportbookClassrooms'},
@@ -36,12 +36,13 @@ function installReportbookMenu () {
     {name: '⚠ Generate PDFs for 🗹 Portfolios and email to guardians', functionName: 'generateAndSendSelectedPortfolioPDFs'},
     null,
     {name: '🕱 Delete ALL SUBJECTS from 🗹 Portfolios', functionName: 'keepKillPortfolioSheets'},
-    {name: '🕱 Archive ALL Courses', functionName: 'archiveAllCourses'},
+    {name: '🕱 Archive ALL Courses', functionName: 'archiveAllCourses'}
   ];
-    
-    var userMenuItems = [
-    {name: 'Import Grades', functionName: 'importGrades'},
-  ]
+  
+  var userMenuItems = [
+    {name: 'Import Grades', functionName: 'importGrades'}
+  ];
+  
   if (Session.getActiveUser().getEmail() == masterUser) {
     spreadsheet.addMenu('Reportbook', adminMenuItems);
   } else {
