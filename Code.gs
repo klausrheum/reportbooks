@@ -26,6 +26,7 @@ function installReportbookMenu () {
     {name: '⚠ Import Students', functionName: 'updateRbStudents'},
     null,
     {name: 'Import Grades', functionName: 'importGrades'},
+    {name: 'Hide Admin Columns', functionName: 'hideCols'},
     null,
     {name: '⚠ Generate Empty Portfolios', functionName: 'createPortfolios'},
     {name: "⚠ Update 🗹 Portfolios from 🗹 Courses", functionName: 'exportPortfolios'},    
@@ -40,7 +41,9 @@ function installReportbookMenu () {
   ];
   
   var userMenuItems = [
-    {name: 'Import Grades', functionName: 'importGrades'}
+    {name: 'Import Grades', functionName: 'importGrades'},
+    null,
+    {name: 'Hide Admin Columns', functionName: 'hideCols'}
   ];
   
   if (Session.getActiveUser().getEmail() == masterUser) {
@@ -49,6 +52,18 @@ function installReportbookMenu () {
     spreadsheet.addMenu('Reportbook', userMenuItems);
   }
 }
+
+function hideCols() {
+  var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Reportbooks');
+  // index position 0  1  2   3   4
+  var colsToHide = [4, 5, 6, 7, 8, 10, 13, 19, 20, 21, 22, 24, 28 ];
+
+  for (var i = 0; i < colsToHide.length; i++) {
+    var columnIndex = colsToHide[i];
+    sh.hideColumns(columnIndex);    
+  };
+}
+
 
 function archiveAllCourses() {
   SuperMarkIt.archiveAllCourses();
