@@ -27,11 +27,12 @@ function installReportbookMenu () {
     null,
     {name: 'Import Grades', functionName: 'importGrades'},
     {name: 'Hide Admin Columns', functionName: 'hideCols'},
+    {name: '⚠ Update Individual Reports tab', functionName: 'SuperMarkIt.updateReportbooks'},
     null,
     {name: '⚠ Generate Empty Portfolios', functionName: 'createPortfolios'},
     {name: "⚠ Update 🗹 Portfolios from 🗹 Courses", functionName: 'exportPortfolios'},    
     null,
-    {name: '⚠ Backup Portfolio Admin', functionName: 'backupAllPastoralAdmin'},
+    {name: '⚠ Push Extra-Curr, Pull Portfolio Admin', functionName: 'backupAllPastoralAdmin'},
     null,
     {name: '⚠ Generate PDFs for 🗹 Portfolios', functionName: 'generateSelectedPortfolioPDFs'},
     {name: '⚠ Generate PDFs for 🗹 Portfolios and email to guardians', functionName: 'generateAndSendSelectedPortfolioPDFs'},
@@ -91,8 +92,6 @@ function generateSelectedPortfolioPDFs() {
 
 
 function importGrades() {
-  var message = Utilities.formatString("Function %s executed", "importGrades");
-  SuperMarkIt.logToSheet( message );
   
   // Y2025 ICT JKw
   var rbId; // = "1BijeGY49S0amD3u-eePjz8iWBwH1sEc7QE_yADzVzgQ";  
@@ -118,16 +117,22 @@ function importGrades() {
       
       var courseIdColumn = 5;
       var rbIdColumn = 1;
+      var subjectColumn = 2;
       var timestampColumn = 17;
       
       if (column != 2) {
         SpreadsheetApp.getUi().alert("ERROR: Select a course from column B");
       } else {
         var rbId = sheet.getRange(row, rbIdColumn).getValue();
+        var subjectName = sheet.getRange(row, subjectColumn).getValue();
         var courseId = sheet.getRange(row, courseIdColumn).getValue();
         if (rbId && courseId) {
           Logger.log("importGrades: rbId=%s, courseId=%s", rbId, courseId);
           SuperMarkIt.importGrades(rbId, courseId);
+          
+          var message = Utilities.formatString("IMPORT GRADES: " + subjectName);
+          SuperMarkIt.logMe( message );
+
           sheet.getRange(row, timestampColumn).setValue(new Date()); 
 
         }
@@ -261,6 +266,7 @@ function exportPortfolios() {
   }
   
 }
+
 
 function backupAllPastoralAdmin() {
   var message = Utilities.formatString("Function %s executed", "backupAllPastoralAdmin")
