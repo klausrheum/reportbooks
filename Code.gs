@@ -186,7 +186,7 @@ function tickPortfoliosPP07() {
   tickBoxes(sheet, fields, 'Export'); 
 }
 
-function tickPortfoliosPP86() {
+function tickPortfoliosPP08() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName("Portfolios");
   var fields = {'AA00': ['PP08']};
