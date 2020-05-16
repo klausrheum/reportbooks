@@ -11,23 +11,34 @@ Works with the klausrheum/supermarkit github project.
  * A special function that runs when the spreadsheet is open, used to add a
  * custom menu to the spreadsheet.
  */
+SuperMarkIt.top.FILES.RBTRACKER = SpreadsheetApp.getActiveSpreadsheet().getId();
+Logger.log(SuperMarkIt.top.FILES.RBTRACKER);
+SuperMarkIt.top.META.SEM = SpreadsheetApp.getActiveSpreadsheet().getName().slice(-7); // ie 'Dec2020' from 'Reportbooks Dec2020'
+Logger.log(SuperMarkIt.top.META.SEM);
+
+var masterUser = "classroom@hope.edu.kh";
+
 function onOpen() {
   installReportbookMenu();
 }
 
+function testTop() {
+  SuperMarkIt.TESTtop();
+}
 
 function installReportbookMenu () {
-  var masterUser = "classroom@hope.edu.kh";
+  SuperMarkIt.top.FILES.RBTRACKER = SpreadsheetApp.getActiveSpreadsheet().getId();
+  
   var spreadsheet = SpreadsheetApp.getActive();
   var adminMenuItems = [
     {name: '⚠ Import Courses', functionName: 'updateReportbookClassrooms'},
     {name: '⚠ Import Teachers', functionName: 'getTeachersFromTracker'},
-    {name: '⚠ Generate Empty Reportbooks (Sync 🗹)', functionName: 'createMissingReportbooks'},
-    {name: '⚠ Import Students', functionName: 'updateRbStudents'},
+    {name: '⚠ Generate Reportbooks (if Sync 🗹)', functionName: 'createMissingReportbooks'},
+    {name: '⚠ Import Students (if Sync 🗹)', functionName: 'updateRbStudents'},
     null,
     {name: 'Import Grades', functionName: 'importGrades'},
     {name: 'Hide Admin Columns', functionName: 'hideCols'},
-    {name: '⚠ Update Individual Reports tab', functionName: 'SuperMarkIt.updateReportbooks'},
+    {name: '⚠ Update Individual Reports tab', functionName: 'updateReportbooks'},
     null,
     {name: '⚠ Generate Empty Portfolios', functionName: 'createPortfolios'},
     {name: "⚠ Update 🗹 Portfolios from 🗹 Courses", functionName: 'exportPortfolios'},    
@@ -35,10 +46,38 @@ function installReportbookMenu () {
     {name: '⚠ Push Extra-Curr, Pull Portfolio Admin', functionName: 'backupAllPastoralAdmin'},
     null,
     {name: '⚠ Generate PDFs for 🗹 Portfolios', functionName: 'generateSelectedPortfolioPDFs'},
-    {name: '⚠ Generate PDFs for 🗹 Portfolios and email to guardians', functionName: 'generateAndSendSelectedPortfolioPDFs'},
+    null,
+    {name: '⚠⚠⚠ Generate PDFs for 🗹 Portfolios and email to guardians', functionName: 'generateAndSendSelectedPortfolioPDFs'},
     null,
     {name: '🕱 Delete ALL SUBJECTS from 🗹 Portfolios', functionName: 'keepKillPortfolioSheets'},
-    {name: '🕱 Archive ALL Courses', functionName: 'archiveAllCourses'}
+    {name: '🕱 Delete SUBJECTS from 🗹 Portfolios matching Admin REGEX', functionName: 'keepKillPortfolioSheetsMatchingRegex'},
+    {name: '🕱 Archive ALL Courses', functionName: 'archiveAllCourses'},
+    null,
+    {name: 'testTop', functionName: 'testTop'}   
+  ];
+  
+  var selectMenuItems = [
+    {name: '🗹 Reportbooks Y2020 PP', functionName: 'tickBoxes_Reportbooks_Y2020_PP'},
+    null,
+    {name: '□ Reportbooks NONE', functionName: 'tickReportbooksNone'},
+    {name: '🗹 Reportbooks SR', functionName: 'tickReportbooksSR'},
+    {name: '🗹 Reportbooks Y2020', functionName: 'tickReportbooksPP2020'},
+    {name: '🗹 Reportbooks Y2021', functionName: 'tickReportbooksPP2021'},
+    {name: '🗹 Reportbooks Y2022', functionName: 'tickReportbooksPP2022'},
+    {name: '🗹 Reportbooks Y2023', functionName: 'tickReportbooksPP2023'},
+    {name: '🗹 Reportbooks Y2024', functionName: 'tickReportbooksPP2024'},
+    {name: '🗹 Reportbooks Y2025', functionName: 'tickReportbooksPP2025'},
+    {name: '🗹 Reportbooks Y2026', functionName: 'tickReportbooksPP2026'},
+    null,
+    {name: '□ Portfolios NONE', functionName: 'tickPortfoliosNone'},
+    {name: '🗹 Portfolios SR',   functionName: 'tickPortfoliosSR'},
+    {name: '🗹 Portfolios PP06', functionName: 'tickPortfoliosPP06'},
+    {name: '🗹 Portfolios PP07', functionName: 'tickPortfoliosPP07'},
+    {name: '🗹 Portfolios PP08', functionName: 'tickPortfoliosPP08'},
+    {name: '🗹 Portfolios PP09', functionName: 'tickPortfoliosPP09'},
+    {name: '🗹 Portfolios PP10', functionName: 'tickPortfoliosPP10'},
+    {name: '🗹 Portfolios PP11', functionName: 'tickPortfoliosPP11'},
+    {name: '🗹 Portfolios PP12', functionName: 'tickPortfoliosPP12'}
   ];
   
   var userMenuItems = [
@@ -48,10 +87,195 @@ function installReportbookMenu () {
   ];
   
   if (Session.getActiveUser().getEmail() == masterUser) {
-    spreadsheet.addMenu('Reportbook', adminMenuItems);
+    spreadsheet.addMenu('Admin', adminMenuItems);
+    spreadsheet.addMenu('🗹', selectMenuItems);
   } else {
     spreadsheet.addMenu('Reportbook', userMenuItems);
   }
+}
+
+function tickReportbooksNone() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Reportbooks");
+  var fields = {'Y0000': ['']};
+  tickBoxes(sheet, fields, 'Export'); 
+}
+
+function tickBoxes_Reportbooks_TEST() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Reportbooks");
+  var fields = {'Y0000': ['Y2020', 'Y2022'], 'PP SR': ['PP']};
+  tickBoxes(sheet, fields, 'Export'); 
+}
+
+function tickReportbooksPP2020() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Reportbooks");
+  var fields = {'Y0000': ['Y2020'], 'PP SR': ['PP']};
+  tickBoxes(sheet, fields, 'Export'); 
+}
+
+function tickReportbooksPP2021() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Reportbooks");
+  var fields = {'Y0000': ['Y2021'], 'PP SR': ['PP']};
+  tickBoxes(sheet, fields, 'Export'); 
+}
+
+function tickReportbooksPP2022() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Reportbooks");
+  var fields = {'Y0000': ['Y2022'], 'PP SR': ['PP']};
+  tickBoxes(sheet, fields, 'Export'); 
+}
+
+function tickReportbooksPP2023() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Reportbooks");
+  var fields = {'Y0000': ['Y2023'], 'PP SR': ['PP']};
+  tickBoxes(sheet, fields, 'Export'); 
+}
+
+function tickReportbooksPP2024() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Reportbooks");
+  var fields = {'Y0000': ['Y2024'], 'PP SR': ['PP']};
+  tickBoxes(sheet, fields, 'Export');
+}
+
+function tickReportbooksPP2025() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Reportbooks");
+  var fields = {'Y0000': ['Y2025'], 'PP SR': ['PP']};
+  tickBoxes(sheet, fields, 'Export'); 
+}
+
+function tickReportbooksPP2026() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Reportbooks");
+  var fields = {'Y0000': ['Y2026'], 'PP SR': ['PP']};
+  tickBoxes(sheet, fields, 'Export'); 
+}
+
+function tickReportbooksSR() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Reportbooks");
+  var fields = {'Y0000': [], 'PP SR': ['SR']};
+  tickBoxes(sheet, fields, 'Export'); 
+}
+
+
+function tickPortfoliosNone() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Portfolios");
+  var fields = {'AA00': ['X']};
+  tickBoxes(sheet, fields, 'Export'); 
+}
+
+function tickPortfoliosPP06() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Portfolios");
+  var fields = {'AA00': ['PP06']};
+  tickBoxes(sheet, fields, 'Export'); 
+}
+
+function tickPortfoliosPP07() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Portfolios");
+  var fields = {'AA00': ['PP07']};
+  tickBoxes(sheet, fields, 'Export'); 
+}
+
+function tickPortfoliosPP86() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Portfolios");
+  var fields = {'AA00': ['PP08']};
+  tickBoxes(sheet, fields, 'Export'); 
+}
+
+function tickPortfoliosPP09() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Portfolios");
+  var fields = {'AA00': ['PP09']};
+  tickBoxes(sheet, fields, 'Export'); 
+}
+
+function tickPortfoliosPP10() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Portfolios");
+  var fields = {'AA00': ['PP10']};
+  tickBoxes(sheet, fields, 'Export'); 
+}
+
+function tickPortfoliosPP11() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Portfolios");
+  var fields = {'AA00': ['PP11']};
+  tickBoxes(sheet, fields, 'Export'); 
+}
+
+function tickPortfoliosPP12() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Portfolios");
+  var fields = {'AA00': ['PP12']};
+  tickBoxes(sheet, fields, 'Export'); 
+}
+
+function tickPortfoliosSR() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Portfolios");
+  var fields = {'AA00': ['SR06', 'SR07', 'SR08', 'SR09', 'SR10']};
+  tickBoxes(sheet, fields, 'Export'); 
+}
+
+
+function tickBoxes(sheet, fields, tickField) {
+  // check updateColumn exists
+  var tickCol = null;
+  var headers = sheet.getRange("A1:1").getValues()[0];
+  for (var i = 0; i < headers.length; i++) {
+    var header = headers[i];
+    Logger.log(header);
+    if (headers[i] === tickField) {
+      tickCol = i+1;
+    }
+  }
+  if (!tickCol) {
+    throw "Could not find the column header '" + tickField + "'";
+  }
+      
+  var opt = {} 
+  var data = SuperMarkIt.getRows(sheet, opt);
+  
+  var yesNos = [];
+  for (var i = 0; i < data.length; i++) {
+    var thisRecord = data[i];
+    var match = true;
+    var matchStr = "";
+    for (var key in fields) {
+      var val = thisRecord[key];
+      var reqKeys = fields[key];
+      
+      if (reqKeys.length > 0) {
+        var found = (reqKeys.indexOf(val) > -1);
+        match = match && found;
+      }
+      matchStr += '\nIs ' + val + " in [" + reqKeys + ']? ' + found;      
+    }
+    Logger.log(matchStr);
+    Logger.log('Final decision: ' + match + "\n");
+    if (match) {
+      Logger.log('Setting cell ' + i + ' to Y'); 
+      yesNos.push(['Y']);
+    } else {
+      Logger.log('Setting cell ' + i + ' to N');
+      yesNos.push(['N']);
+    }
+  }
+  //Logger.log('setValues(\n' + yesNos);
+  var numRows = sheet.getMaxRows()-1;
+  var tickRange = sheet.getRange(2, tickCol, numRows);
+  tickRange.setValues(yesNos);
 }
 
 function hideCols() {
@@ -90,6 +314,9 @@ function generateSelectedPortfolioPDFs() {
   SuperMarkIt.generateSelectedPortfolioPDFs(false);
 }
 
+function updateReportbooks() {
+  SuperMarkIt.updateReportbooks();
+}
 
 function importGrades() {
   
@@ -148,30 +375,40 @@ function updateRbStudents() {
   
   var sheet = SpreadsheetApp.getActiveSheet();
   if (sheet.getName() != "Reportbooks") {
-    SpreadsheetApp.getUi().alert("ERROR: Select a course from the Reportbooks tab");
+    SpreadsheetApp.getUi().alert("ERROR: Check 'Sync' column on the Reportbooks tab");
   } else {
-    var selection = SpreadsheetApp.getSelection();
-    var ranges =  selection.getActiveRangeList().getRanges();
-    Logger.log("selection contains %s cells", ranges.length);
-    for (var i = 0; i < ranges.length; i++) {
-      var row = ranges[i].getRow();
-      var column = ranges[i].getColumn();
-      Logger.log('row %s, column %s', row, column);
+//    var selection = SpreadsheetApp.getSelection();
+//    var ranges =  selection.getActiveRangeList().getRanges();
+//    Logger.log("selection contains %s cells", ranges.length);
+    var rbIdColumn = 1;
+    var courseNameColumn = 2;
+    var courseIdColumn = 5;
+    var timestampColumn = 17;
+    var syncColumn = 21;
+    var startCol = 1;
+    var startRow = 2;
+    var numRows = sheet.getMaxRows()-1;
+    var numCols = sheet.getMaxColumns();
+
+    var range = sheet.getRange(startRow, startCol, numRows, numCols);
+    var values = range.getValues();
+        
+    for (var i = 0; i < values.length; i++) {
+      // sheet.setActiveRange(sheet.getRange(i+2, 2));
+      // Logger.log(values[i]);
+      var rbId = values[i][rbIdColumn-1];
+      var courseId = values[i][courseIdColumn-1];
+      var sync = values[i][syncColumn-1];
+      var courseName = values[i][courseNameColumn-1];
       
-      var courseIdColumn = 5;
-      var rbIdColumn = 1;
-      var timestampColumn = 17;
-      
-      if (column != 2) {
-        SpreadsheetApp.getUi().alert("ERROR: Select a course from column B");
-      } else {
-        var rbId = sheet.getRange(row, rbIdColumn).getValue();
-        var courseId = sheet.getRange(row, courseIdColumn).getValue();
-        if (rbId && courseId) {
-          Logger.log("updateRbStudents: rbId=%s, courseId=%s", rbId, courseId);
-          var courseStudents = SuperMarkIt.listStudents(courseId);
-          SuperMarkIt.updateRbStudents(rbId, courseStudents);
-        }
+      // Logger.log("Import Students: %s sync=%s", courseName, sync);
+      if (rbId && courseId && sync) {
+        var message = "updateRbStudents: " + courseName + " " + sync;
+        Logger.log(message);
+        SuperMarkIt.logMe(message);
+  
+        var courseStudents = SuperMarkIt.listStudents(courseId);
+        SuperMarkIt.updateRbStudents(rbId, courseStudents);
       }
     }
   }
@@ -190,6 +427,43 @@ function keepKillPortfolioSheets() {
     if (result == ui.Button.YES) {
       // User clicked "Yes".
       SuperMarkIt.keepKillPortfolioSheets(true);
+    } else {
+      // User clicked "No" or X in the title bar.
+      
+      ui.alert('Cancelled', 'Deletion cancelled.', ui.ButtonSet.OK);
+    }
+
+  } else {
+    ui.alert("Sorry, only the master user can run this script");
+  }
+}
+    
+function keepKillPortfolioSheetsMatchingRegex() {
+  var ui = SpreadsheetApp.getUi();
+  
+  if (Session.getActiveUser().getEmail() == masterUser) {
+    
+    var keepPatterns = SpreadsheetApp.getActiveSpreadsheet().getRangeByName('keepRegex').getValues();
+    var killPatterns = SpreadsheetApp.getActiveSpreadsheet().getRangeByName('killRegex').getValues();
+    if (keepPatterns && killPatterns) {
+      SuperMarkIt.logMe("keep: " + keepPatterns + ", killPatterns: " + killPatterns);
+    }
+    
+    var result = ui.alert(
+      'DANGER!!!',
+      'KILL all sheets containing regex /' + killPatterns + '/ from all ticked Portfolios, but KEEP any containing regex /' + keepPatterns + '/  (see Admin tab)',
+      ui.ButtonSet.YES_NO);
+    
+    if (result == ui.Button.YES) {
+      // User clicked "Yes".
+      var forReal = true;
+      for (var i=0; i<keepPatterns.length; i++) {
+        keepPatterns[i] = new RegExp(keepPatterns[i]);
+      }
+      for (var i=0; i<killPatterns.length; i++) {
+        killPatterns[i] = new RegExp(killPatterns[i]);
+      }
+      SuperMarkIt.keepKillPortfolioSheets(keepPatterns, killPatterns, forReal);
     } else {
       // User clicked "No" or X in the title bar.
       
