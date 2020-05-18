@@ -49,9 +49,10 @@ function installReportbookMenu () {
     null,
     {name: '⚠⚠⚠ Generate PDFs for 🗹 Portfolios and email to guardians', functionName: 'generateAndSendSelectedPortfolioPDFs'},
     null,
-    {name: '🕱 Delete ALL SUBJECTS from 🗹 Portfolios', functionName: 'keepKillPortfolioSheets'},
-    {name: '🕱 Delete SUBJECTS from 🗹 Portfolios matching Admin REGEX', functionName: 'keepKillPortfolioSheetsMatchingRegex'},
-    {name: '🕱 Archive ALL Courses', functionName: 'archiveAllCourses'},
+    {name: '🕱 Delete ALL SHEETS from 🗹 Portfolios', functionName: 'keepKillPortfolioSheets'},
+    {name: '🔍 Find SHEETS from 🗹 Portfolios matching Admin KEEP/KILL', functionName: 'keepKillPortfolioSheetsMatchingRegexFind'},
+    {name: '🗑️ Delete SHEETS from 🗹 Portfolios matching Admin KEEP/KILL', functionName: 'keepKillPortfolioSheetsMatchingRegexDelete'},
+    {name: '📁 Archive ALL Courses', functionName: 'archiveAllCourses'},
     null,
     {name: 'testTop', functionName: 'testTop'}   
   ];
@@ -417,6 +418,7 @@ function updateRbStudents() {
 
 function keepKillPortfolioSheets() {
   var ui = SpreadsheetApp.getUi();
+  var sheetsRemoved = [];
   
   if (Session.getActiveUser().getEmail() == masterUser) {
     var result = ui.alert(
@@ -426,7 +428,7 @@ function keepKillPortfolioSheets() {
     
     if (result == ui.Button.YES) {
       // User clicked "Yes".
-      SuperMarkIt.keepKillPortfolioSheets(true);
+      sheetsRemoved = SuperMarkIt.keepKillPortfolioSheets(true);
     } else {
       // User clicked "No" or X in the title bar.
       
@@ -436,43 +438,79 @@ function keepKillPortfolioSheets() {
   } else {
     ui.alert("Sorry, only the master user can run this script");
   }
+  
+  return sheetsRemoved;
 }
     
-function keepKillPortfolioSheetsMatchingRegex() {
+
+function keepKillPortfolioSheetsMatchingRegexFind() {
+  var forReal = false;
+  keepKillPortfolioSheetsMatchingRegex(forReal);
+}
+
+function keepKillPortfolioSheetsMatchingRegexDelete() {
+  var forReal = true;
+  keepKillPortfolioSheetsMatchingRegex(forReal);  
+}
+
+function keepKillPortfolioSheetsMatchingRegex(forReal) {
+    if (forReal === undefined) {
+    forReal = false;
+  }
+  var sheetsRemoved = [];
   var ui = SpreadsheetApp.getUi();
   
   if (Session.getActiveUser().getEmail() == masterUser) {
     
     var keepPatterns = SpreadsheetApp.getActiveSpreadsheet().getRangeByName('keepRegex').getValues();
     var killPatterns = SpreadsheetApp.getActiveSpreadsheet().getRangeByName('killRegex').getValues();
+    
     if (keepPatterns && killPatterns) {
-      SuperMarkIt.logMe("keep: " + keepPatterns + ", killPatterns: " + killPatterns);
-    }
-    
-    var result = ui.alert(
-      'DANGER!!!',
-      'KILL all sheets containing regex /' + killPatterns + '/ from all ticked Portfolios, but KEEP any containing regex /' + keepPatterns + '/  (see Admin tab)',
-      ui.ButtonSet.YES_NO);
-    
-    if (result == ui.Button.YES) {
-      // User clicked "Yes".
-      var forReal = true;
+
+      var keepRegexes = [];
+      var killRegexes = [];
       for (var i=0; i<keepPatterns.length; i++) {
-        keepPatterns[i] = new RegExp(keepPatterns[i]);
+        var keepPatternString = keepPatterns[i].toString();
+        if (keepPatternString.length > 0) {
+          keepRegexes.push(new RegExp(keepPatterns[i]));
+        }
       }
       for (var i=0; i<killPatterns.length; i++) {
-        killPatterns[i] = new RegExp(killPatterns[i]);
+        var killPatternString = killPatterns[i].toString();
+        if (killPatternString.length > 0) {
+          killRegexes.push(new RegExp(killPatterns[i]));
+        }
       }
-      SuperMarkIt.keepKillPortfolioSheets(keepPatterns, killPatterns, forReal);
-    } else {
-      // User clicked "No" or X in the title bar.
+//      SuperMarkIt.logMe("keepRegexes: " + keepRegexes);
+//      SuperMarkIt.logMe("killRegexes: " + killRegexes);
       
-      ui.alert('Cancelled', 'Deletion cancelled.', ui.ButtonSet.OK);
+      var displayText = 'all sheets containing \n' + killPatterns + ' \n from all ticked Portfolios, but KEEP any containing \n' + keepPatterns + '\n  (see Admin tab)';
+     
+      if (forReal) {
+        displayText = 'DELETE ' + displayText;
+      } else {
+        displayText = 'DISPLAY ' + displayText;
+      }
+      
+      var result = ui.alert(
+        'CONFIRM?!',
+        displayText,
+        ui.ButtonSet.YES_NO);
+      
+      if (result == ui.Button.YES) {
+        // User clicked "Yes".
+        sheetsRemoved = SuperMarkIt.keepKillPortfolioSheets(keepRegexes, killRegexes, forReal);
+      } else {
+        // User clicked "No" or X in the title bar.
+        
+        ui.alert('Cancelled', 'Deletion cancelled.', ui.ButtonSet.OK);
+      }
     }
-
   } else {
     ui.alert("Sorry, only the master user can run this script");
   }
+  
+  return sheetsRemoved;
 }
     
 function generateAndSendSelectedPortfolioPDFs() {
