@@ -6,7 +6,6 @@ Works with the klausrheum/supermarkit github project.
 
 */
 
-
 /**
  * A special function that runs when the spreadsheet is open, used to add a
  * custom menu to the spreadsheet.
@@ -43,24 +42,24 @@ function installReportbookMenu () {
     {name: '⚠ Generate Empty Portfolios', functionName: 'createPortfolios'},
     {name: "⚠ Update 🗹 Portfolios from 🗹 Courses", functionName: 'exportPortfolios'},    
     null,
-    {name: '⚠ Push Extra-Curr, Pull Portfolio Admin', functionName: 'backupAllPastoralAdmin'},
+    {name: '⚠ Sync 🗹 Portfolios (Push Extra-Curr, Backup Pastoral)', functionName: 'backupAllPastoralAdmin'},
     null,
     {name: '⚠ Generate PDFs for 🗹 Portfolios', functionName: 'generateSelectedPortfolioPDFs'},
     null,
     {name: '⚠⚠⚠ Generate PDFs for 🗹 Portfolios and email to guardians', functionName: 'generateAndSendSelectedPortfolioPDFs'},
     null,
-    {name: '🕱 Delete ALL SHEETS from 🗹 Portfolios', functionName: 'keepKillPortfolioSheets'},
     {name: '🔍 Find SHEETS from 🗹 Portfolios matching Admin KEEP/KILL', functionName: 'keepKillPortfolioSheetsMatchingRegexFind'},
     {name: '🗑️ Delete SHEETS from 🗹 Portfolios matching Admin KEEP/KILL', functionName: 'keepKillPortfolioSheetsMatchingRegexDelete'},
     {name: '📁 Archive ALL Courses', functionName: 'archiveAllCourses'},
+    {name: '🕱 Delete ALL SHEETS from 🗹 Portfolios', functionName: 'keepKillPortfolioSheets'},
     null,
-    {name: 'testTop', functionName: 'testTop'}   
+    {name: 'updateReportbooks - John only!', functionName: 'SuperMarkIt.updateReportbooks'}   
+//    {name: 'testTop', functionName: 'testTop'}   
   ];
   
   var selectMenuItems = [
-    {name: '🗹 Reportbooks Y2020 PP', functionName: 'tickBoxes_Reportbooks_Y2020_PP'},
-    null,
     {name: '□ Reportbooks NONE', functionName: 'tickReportbooksNone'},
+    {name: '🗹 Reportbooks ALL', functionName: 'tickReportbooksAll'},
     {name: '🗹 Reportbooks SR', functionName: 'tickReportbooksSR'},
     {name: '🗹 Reportbooks Y2020', functionName: 'tickReportbooksPP2020'},
     {name: '🗹 Reportbooks Y2021', functionName: 'tickReportbooksPP2021'},
@@ -71,6 +70,7 @@ function installReportbookMenu () {
     {name: '🗹 Reportbooks Y2026', functionName: 'tickReportbooksPP2026'},
     null,
     {name: '□ Portfolios NONE', functionName: 'tickPortfoliosNone'},
+    {name: '🗹 Portfolios ALL', functionName: 'tickPortfoliosAll'},
     {name: '🗹 Portfolios SR',   functionName: 'tickPortfoliosSR'},
     {name: '🗹 Portfolios PP06', functionName: 'tickPortfoliosPP06'},
     {name: '🗹 Portfolios PP07', functionName: 'tickPortfoliosPP07'},
@@ -78,7 +78,7 @@ function installReportbookMenu () {
     {name: '🗹 Portfolios PP09', functionName: 'tickPortfoliosPP09'},
     {name: '🗹 Portfolios PP10', functionName: 'tickPortfoliosPP10'},
     {name: '🗹 Portfolios PP11', functionName: 'tickPortfoliosPP11'},
-    {name: '🗹 Portfolios PP12', functionName: 'tickPortfoliosPP12'}
+    {name: '🗹 Portfolios PP12', functionName: 'tickPortfoliosPP12'},
   ];
   
   var userMenuItems = [
@@ -99,6 +99,13 @@ function tickReportbooksNone() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName("Reportbooks");
   var fields = {'Y0000': ['']};
+  tickBoxes(sheet, fields, 'Export'); 
+}
+
+function tickReportbooksAll() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Reportbooks");
+  var fields = { 'PP SR': ['PP', 'SR']};
   tickBoxes(sheet, fields, 'Export'); 
 }
 
@@ -166,10 +173,19 @@ function tickReportbooksSR() {
 }
 
 
+
+
 function tickPortfoliosNone() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName("Portfolios");
   var fields = {'AA00': ['X']};
+  tickBoxes(sheet, fields, 'Export'); 
+}
+
+function tickPortfoliosAll() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Portfolios");
+  var fields = {'AA00': ['PP06', 'PP07', 'PP08', 'PP09', 'PP10', 'PP11', 'PP12', 'SR06', 'SR07', 'SR08', 'SR09', 'SR10']};
   tickBoxes(sheet, fields, 'Export'); 
 }
 
@@ -228,6 +244,7 @@ function tickPortfoliosSR() {
   var fields = {'AA00': ['SR06', 'SR07', 'SR08', 'SR09', 'SR10']};
   tickBoxes(sheet, fields, 'Export'); 
 }
+
 
 
 function tickBoxes(sheet, fields, tickField) {
@@ -581,9 +598,11 @@ function exportPortfolios() {
 
 
 function backupAllPastoralAdmin() {
-  var message = Utilities.formatString("Function %s executed", "backupAllPastoralAdmin")
-
+  var message = Utilities.formatString("START: backupAllPastoralAdmin")
+  SuperMarkIt.logToSheet( message );
   SuperMarkIt.backupAllPastoralAdmin();
+  var message = Utilities.formatString("END: backupAllPastoralAdmin")
+  SuperMarkIt.logToSheet( message );
 }
 
 function showAlert(title, prompt) {
@@ -604,4 +623,16 @@ function showAlert(title, prompt) {
   }
   
   return result == ui.Button.YES;
+}
+
+function onlyUnique(value, index, self) { 
+    return self.indexOf(value) === index;
+}
+
+function testUnique() {
+// https://stackoverflow.com/questions/1960473/get-all-unique-values-in-a-javascript-array-remove-duplicates
+  var a = ['Y2026', 'Y2026', 'Y2026', 'Y2027', 'Y2027', 'Y2027'];
+  var unique = a.filter( onlyUnique ); // returns ['a', 1, 2, '1']
+  
+  Logger.log(unique);
 }
