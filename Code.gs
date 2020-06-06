@@ -30,23 +30,23 @@ function installReportbookMenu () {
   
   var spreadsheet = SpreadsheetApp.getActive();
   var adminMenuItems = [
-    {name: '⚠ Import Courses', functionName: 'updateReportbookClassrooms'},
-    {name: '⚠ Import Teachers', functionName: 'getTeachersFromTracker'},
-    {name: '⚠ Generate Reportbooks (if Sync 🗹)', functionName: 'createMissingReportbooks'},
-    {name: '⚠ Import Students (if Sync 🗹)', functionName: 'updateRbStudents'},
+    {name: '↧ Import Courses', functionName: 'updateReportbookClassrooms'},
+    {name: '↧ Import Teachers', functionName: 'getTeachersFromTracker'},
+    {name: '⤑ Generate Empty Reportbooks (if Sync 🗹)', functionName: 'createMissingReportbooks'},
+    {name: '↧ Import Students (if Sync 🗹)', functionName: 'updateRbStudents'},
     null,
-    {name: 'Import Grades', functionName: 'importGrades'},
-    {name: 'Hide Admin Columns', functionName: 'hideCols'},
+    {name: '↧ Import Grades', functionName: 'importGrades'},
+    {name: '⮓ Hide Admin Columns', functionName: 'hideCols'},
     {name: '⚠ Update Individual Reports tab', functionName: 'updateReportbooks'},
     null,
-    {name: '⚠ Generate Empty Portfolios', functionName: 'createPortfolios'},
-    {name: "⚠ Update 🗹 Portfolios from 🗹 Courses", functionName: 'exportPortfolios'},    
+    {name: '⤑ Generate Empty Portfolios', functionName: 'createPortfolios'},
+    {name: "⇉ Update 🗹 Portfolios from 🗹 Courses", functionName: 'exportPortfolios'},    
     null,
-    {name: '⚠ Sync 🗹 Portfolios (Push Extra-Curr, Backup Pastoral)', functionName: 'backupAllPastoralAdmin'},
+    {name: '⇆ Sync 🗹 Portfolios (Push Extra-Curr, Backup Pastoral)', functionName: 'backupAllPastoralAdmin'},
     null,
-    {name: '⚠ Generate PDFs for 🗹 Portfolios', functionName: 'generateSelectedPortfolioPDFs'},
+    {name: '⟼ Generate PDFs for 🗹 Portfolios', functionName: 'generateSelectedPortfolioPDFs'},
     null,
-    {name: '⚠⚠⚠ Generate PDFs for 🗹 Portfolios and email to guardians', functionName: 'generateAndSendSelectedPortfolioPDFs'},
+    {name: '⟾ Generate PDFs for 🗹 Portfolios and email to guardians', functionName: 'generateAndSendSelectedPortfolioPDFs'},
     null,
     {name: '🔍 Find SHEETS from 🗹 Portfolios matching Admin KEEP/KILL', functionName: 'keepKillPortfolioSheetsMatchingRegexFind'},
     {name: '🗑️ Delete SHEETS from 🗹 Portfolios matching Admin KEEP/KILL', functionName: 'keepKillPortfolioSheetsMatchingRegexDelete'},
@@ -82,9 +82,9 @@ function installReportbookMenu () {
   ];
   
   var userMenuItems = [
-    {name: 'Import Grades', functionName: 'importGrades'},
+    {name: '↧ Import Grades', functionName: 'importGrades'},
     null,
-    {name: 'Hide Admin Columns', functionName: 'hideCols'}
+    {name: '⮓ Hide Admin Columns', functionName: 'hideCols'}
   ];
   
   if (Session.getActiveUser().getEmail() == masterUser) {
