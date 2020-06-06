@@ -35,12 +35,12 @@ function installReportbookMenu () {
     {name: '⤑ Generate Empty Reportbooks (if Sync 🗹)', functionName: 'createMissingReportbooks'},
     {name: '↧ Import Students (if Sync 🗹)', functionName: 'updateRbStudents'},
     null,
-    {name: '↧ Import Grades', functionName: 'importGrades'},
+    {name: '⇉ Import Grades', functionName: 'importGrades'},
     {name: '⮓ Hide Admin Columns', functionName: 'hideCols'},
     {name: '⚠ Update Individual Reports tab', functionName: 'updateReportbooks'},
     null,
     {name: '⤑ Generate Empty Portfolios', functionName: 'createPortfolios'},
-    {name: "⇉ Update 🗹 Portfolios from 🗹 Courses", functionName: 'exportPortfolios'},    
+    {name: "⇶ Update 🗹 Portfolios from 🗹 Courses", functionName: 'exportPortfolios'},    
     null,
     {name: '⇆ Sync 🗹 Portfolios (Push Extra-Curr, Backup Pastoral)', functionName: 'backupAllPastoralAdmin'},
     null,
@@ -82,7 +82,7 @@ function installReportbookMenu () {
   ];
   
   var userMenuItems = [
-    {name: '↧ Import Grades', functionName: 'importGrades'},
+    {name: '⇉ Import Grades', functionName: 'importGrades'},
     null,
     {name: '⮓ Hide Admin Columns', functionName: 'hideCols'}
   ];
